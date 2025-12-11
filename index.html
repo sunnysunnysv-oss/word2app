@@ -5,63 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Word2App - One Word → Your App</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="data:,"/>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f2f5; }
     h1 { color: #333; }
     input { font-size: 24px; padding: 15px; width: 300px; margin: 20px; border: 2px solid #333; border-radius: 10px; }
     button { font-size: 24px; padding: 15px 30px; background: #007bff; color: white; border: none; border-radius: 10px; cursor: pointer; }
     button:hover { background: #0056b3; }
-    #app-frame { margin-top: 40px; width: 380px; height: 600px; border: 8px solid #333; border-radius: 20px; display: none; margin: 40px auto; }
+    #app-frame { margin-top: 40px; width: 380px; height: 680px; border: 8px solid #333; border-radius: 20px; display: none; margin: 40px auto; background: white; }
     .support { margin-top: 50px; }
   </style>
 </head>
 <body>
   <h1>Word2App</h1>
-  <p>Type one word → Get your personal app instantly</p>
-  <input type="text" id="word" placeholder="e.g., Todo, Journal, Fitness" autofocus />
+  <p>Type one word → Get your personal app instantly (use lowercase: todo, journal, etc.)</p>
+  <input type="text" id="word" placeholder="e.g., todo, journal, fitness" autofocus />
   <br/>
   <button onclick="generateApp()">Generate My App</button>
   
   <div class="support">
     <p>Enjoying Word2App? Support more templates! ☕</p>
-    <a href="https://buymeacoffee.com/" style="color:#007bff; font-weight:bold;">Buy me a coffee</a> (update link later)
+    <a href="https://buymeacoffee.com/" style="color:#007bff; font-weight:bold;">Buy me a coffee</a>
   </div>
 
   <iframe id="app-frame" sandbox="allow-scripts allow-same-origin"></iframe>
 
   <script>
     const templates = {
-      todo: `<h2>My Todo List</h2><input id="task" placeholder="New task"><button onclick="add()">Add</button><ul id="list"></ul>
-             <script>function add(){let li=document.createElement('li');li.textContent=document.getElementById('task').value;document.getElementById('list').appendChild(li);document.getElementById('task').value=''; localStorage.setItem('todos', document.getElementById('list').innerHTML);}
-             document.getElementById('list').innerHTML=localStorage.getItem('todos')||'';</script>`,
+      todo: `<h2>My Todo List</h2><input id="task" placeholder="New task"/><button onclick="add()">Add</button><ul id="list"></ul>
+             <script>function add(){const li=document.createElement('li');li.textContent=document.getElementById('task').value;document.getElementById('list').appendChild(li);document.getElementById('task').value='';localStorage.setItem('todos',document.getElementById('list').innerHTML);}document.getElementById('list').innerHTML=localStorage.getItem('todos')||'';</script>`,
       journal: `<h2>My Journal</h2><textarea id="entry" placeholder="Write today's thoughts..." style="width:90%;height:300px;"></textarea><button onclick="save()">Save Entry</button><div id="entries"></div>
-                <script>function save(){let d=new Date().toLocaleDateString(); let div=document.createElement('div'); div.innerHTML='<hr><b>'+d+'</b><p>'+document.getElementById('entry').value+'</p>'; document.getElementById('entries').prepend(div); document.getElementById('entry').value='';}</script>`,
-      fitness: `<h2>Fitness Tracker</h2><input id="workout" placeholder="e.g., 20 pushups"><button onclick="log()">Log</button><ul id="log"></ul>
-                <script>function log(){let li=document.createElement('li'); li.textContent=new Date().toLocaleString() + ': ' + document.getElementById('workout').value; document.getElementById('log').prepend(li); document.getElementById('workout').value='';}</script>`,
-      budget: `<h2>Budget Tracker</h2><input id="item" placeholder="Item"><input id="amount" type="number" placeholder="Amount"><button onclick="add()">Add Expense</button><ul id="expenses"></ul><b>Total: <span id="total">0</span></b>
-               <script>let total=0; function add(){let amt=parseFloat(document.getElementById('amount').value); total+=amt; let li=document.createElement('li'); li.textContent=document.getElementById('item').value + ' - $' + amt; document.getElementById('expenses').prepend(li); document.getElementById('total').textContent=total;}</script>`,
+                <script>function save(){const d=new Date().toLocaleDateString();const div=document.createElement('div');div.innerHTML='<hr><b>'+d+'</b><p>'+document.getElementById('entry').value+'<\/p>';document.getElementById('entries').prepend(div);document.getElementById('entry').value='';}</script>`,
+      fitness: `<h2>Fitness Tracker</h2><input id="workout" placeholder="e.g., 20 pushups"/><button onclick="log()">Log</button><ul id="log"></ul>
+                <script>function log(){const li=document.createElement('li');li.textContent=new Date().toLocaleString()+': '+document.getElementById('workout').value;document.getElementById('log').prepend(li);document.getElementById('workout').value='';}</script>`,
+      budget: `<h2>Budget Tracker</h2><input id="item" placeholder="Item"/><input id="amount" type="number" placeholder="Amount"/><button onclick="add()">Add Expense</button><ul id="expenses"></ul><b>Total: <span id="total">0</span></b>
+               <script>let total=0;function add(){const amt=parseFloat(document.getElementById('amount').value)||0;total+=amt;const li=document.createElement('li');li.textContent=document.getElementById('item').value+' - $'+amt;document.getElementById('expenses').prepend(li);document.getElementById('total').textContent=total;}</script>`,
       mood: `<h2>Mood Tracker</h2><select id="mood"><option>😊 Great</option><option>😐 Okay</option><option>😔 Low</option></select><button onclick="log()">Log Mood</button><ul id="log"></ul>
-             <script>function log(){let li=document.createElement('li'); li.textContent=new Date().toLocaleDateString() + ': ' + document.getElementById('mood').value; document.getElementById('log').prepend(li);}</script>`,
+             <script>function log(){const li=document.createElement('li');li.textContent=new Date().toLocaleDateString()+': '+document.getElementById('mood').value;document.getElementById('log').prepend(li);}</script>`,
       habit: `<h2>Habit Tracker</h2><p>Daily check-in:</p><button onclick="check()" style="font-size:50px;">✅ Check Today</button><p>Streak: <span id="streak">0</span> days</p>
-              <script>let today=new Date().toDateString(); let last=localStorage.getItem('last')||''; let streak=parseInt(localStorage.getItem('streak')||'0'); if(last===today) streak=localStorage.getItem('current')||0; else if(last===new Date(Date.now()-86400000).toDateString()) streak++; else streak=1; function check(){localStorage.setItem('last',today); localStorage.setItem('streak',streak); localStorage.setItem('current',streak); document.getElementById('streak').textContent=streak; alert('Checked! 🔥');} document.getElementById('streak').textContent=streak;</script>`,
+              <script>const today=new Date().toDateString();let streak=parseInt(localStorage.getItem('streak')||'0');const last=localStorage.getItem('last');if(last!==today){streak=(last===new Date(Date.now()-86400000).toDateString())?streak+1:1;localStorage.setItem('streak',streak);}function check(){localStorage.setItem('last',today);document.getElementById('streak').textContent=streak;alert('Checked! 🔥');}document.getElementById('streak').textContent=streak;</script>`,
       notes: `<h2>My Notes</h2><textarea id="note" style="width:90%;height:400px;"></textarea>
-              <script>document.getElementById('note').value=localStorage.getItem('note')||''; document.getElementById('note').addEventListener('input',()=>{localStorage.setItem('note',document.getElementById('note').value);});</script>`,
+              <script>document.getElementById('note').value=localStorage.getItem('note')||'';document.getElementById('note').addEventListener('input',()=>{localStorage.setItem('note',document.getElementById('note').value);});</script>`,
       timer: `<h2>Pomodoro Timer</h2><div style="font-size:60px;" id="time">25:00</div><button onclick="start()">Start</button><button onclick="reset()">Reset</button>
-              <script>let time=1500; let interval; function start(){if(interval) return; interval=setInterval(()=>{time--; let m=Math.floor(time/60); let s=time%60; document.getElementById('time').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s; if(time<=0){clearInterval(interval); alert('Time up!'); reset();}},1000);} function reset(){clearInterval(interval); interval=null; time=1500; document.getElementById('time').textContent='25:00';}</script>`
+              <script>let time=1500,interval;function start(){if(interval) return;interval=setInterval(()=>{time--;let m=Math.floor(time/60),s=time%60;document.getElementById('time').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;if(time<=0){clearInterval(interval);alert('Time up!');reset();}},1000);}function reset(){clearInterval(interval);interval=null;time=1500;document.getElementById('time').textContent='25:00';}</script>`
     };
 
     function generateApp() {
       let word = document.getElementById('word').value.trim().toLowerCase();
-      if (!word) { alert("Type a word first!"); return; }
-      
+      if (!word) return alert("Type a word first!");
       let appName = word.charAt(0).toUpperCase() + word.slice(1);
-      let content = templates[word] || `<h2>${appName} App</h2><p>Your personal ${appName} tool is ready!</p><p>Add your own features later.</p>`;
-      
+      let content = templates[word] || `<h2>${appName} App</h2><p>Your personal ${appName} tool. More coming soon!</p>`;
       let html = `<!DOCTYPE html><html><head><title>${appName}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:Arial;margin:20px;text-align:center;}</style></head><body>${content}</body></html>`;
-      
-      document.getElementById('app-frame').style.display = "block";
-      document.getElementById('app-frame').srcdoc = html;
+      let frame = document.getElementById('app-frame');
+      frame.style.display = "block";
+      frame.srcdoc = html;
     }
   </script>
 </body>
